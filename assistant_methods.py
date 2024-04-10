@@ -2,12 +2,14 @@ import requests
 import string
 import random
 
+from data import URL
+
 
 def build_random_order():
     buns_list = []
     main_list = []
     sauces_list = []
-    response = requests.get('https://stellarburgers.nomoreparties.site/api/ingredients').json()
+    response = requests.get(URL.INGREDIENTS).json()
     for ingredient in response['data']:
         if ingredient['type'] == 'bun':
             buns_list.append(ingredient['_id'])

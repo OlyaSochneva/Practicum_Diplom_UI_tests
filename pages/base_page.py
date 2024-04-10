@@ -10,14 +10,27 @@ class BasePage:
     def refresh(self):
         self.driver.refresh()
 
-    def anti_overlay_click(self):  # чтобы не падали тесты на Firefox
-        action = ActionChains(self.driver)
-        action.move_by_offset(250, 0).click().perform()
-
-    def return_element(self, locator):
+    def wait_for_element(self, locator):
         WebDriverWait(self.driver, 5).until(
             expected_conditions.visibility_of_element_located(locator))
+
+    def wait_for_invisibility(self, locator):
+        WebDriverWait(self.driver, 5).until(
+            expected_conditions.invisibility_of_element_located(locator))
+
+    def return_element(self, locator):
+        self.wait_for_element(locator)
         return self.driver.find_element(*locator)
+
+    def check_element_visible(self, locator):
+        self.wait_for_element(locator)
+        if expected_conditions.visibility_of_element_located(locator) is not None:
+            return True
+
+    def check_element_invisible(self, locator):
+        self.wait_for_invisibility(locator)
+        if expected_conditions.invisibility_of_element_located(locator) is not None:
+            return True
 
     def scroll_to_element(self, locator):
         element = self.return_element(locator)
@@ -43,13 +56,11 @@ class BasePage:
 
     def click_and_wait_for(self, locator, expected_element_locator):
         self.click_element(locator)
-        WebDriverWait(self.driver, 5).until(
-            expected_conditions.visibility_of_element_located(expected_element_locator))
+        self.wait_for_element(expected_element_locator)
 
     def click_and_wait_for_invisibility(self, locator, check_locator):
         self.click_element(locator)
-        WebDriverWait(self.driver, 5).until(
-            expected_conditions.invisibility_of_element_located(check_locator))
+        self.wait_for_invisibility(check_locator)
 
     @staticmethod
     def create_locator(locator_template, specification):
@@ -58,3 +69,11 @@ class BasePage:
         result = (method, locator)
         return result
 
+    def action(self):
+        return ActionChains(self.driver)
+
+    def anti_overlay_click(self):  # чтобы не падали тесты на Firefox
+        self.action().move_by_offset(250, 0).click().perform()
+
+    def drag_and_drop(self, dragged, target):
+        self.action().drag_and_drop(dragged, target).pause(1).perform()

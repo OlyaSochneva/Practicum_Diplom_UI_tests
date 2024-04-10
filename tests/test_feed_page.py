@@ -2,7 +2,7 @@ import pytest
 import requests
 import allure
 
-from selenium.webdriver.support import expected_conditions
+from data import URL
 
 from pages.common_header import CommonHeader
 from pages.feed_page import FeedPage
@@ -16,10 +16,10 @@ class TestFeedPage:
     @allure.title('Проверка: переход по клику на «Лента заказов»')
     @pytest.mark.parametrize("driver", ['chrome', 'firefox'])
     def test_move_to_order_feed_page(self, request, driver):
-        driver = request.getfixturevalue(driver)     # setup
-        common_header = CommonHeader(driver)         # setup
+        driver = request.getfixturevalue(driver)                           # setup
+        common_header, feed_page = CommonHeader(driver), FeedPage(driver)  # setup
         common_header.click_on_order_feed()
-        assert expected_conditions.visibility_of_element_located(FeedPageLocators.FEED_HEADER)
+        assert feed_page.check_feed_page_is_displayed()
 
     @allure.title('Проверка: если кликнуть на заказ, откроется всплывающее окно с деталями')
     @pytest.mark.parametrize("driver", ['chrome', 'firefox'])
@@ -32,7 +32,7 @@ class TestFeedPage:
         common_header.click_on_order_feed()
         feed_page.refresh()
         feed_page.click_on_order(order)
-        assert expected_conditions.visibility_of_element_located(FeedPageLocators.ORDER_POPUP_WINDOW)
+        assert feed_page.check_order_popup_is_displayed()
 
     @allure.title('Проверка: заказы пользователя из раздела «История заказов» отображаются на странице «Лента заказов»')
     @pytest.mark.parametrize("driver", ['chrome', 'firefox'])
@@ -48,7 +48,7 @@ class TestFeedPage:
         order_number = personal_page.return_order_number_from_history()
         common_header.click_on_order_feed()
         my_order = feed_page.create_order_locator(order_number)
-        assert expected_conditions.visibility_of_element_located(my_order)
+        assert feed_page.check_order_is_displayed(my_order)
 
     @allure.title('Проверка: при создании нового заказа счётчики Выполнено за всё время '
                   'и Выполнено за сегодня увеличиваются')
@@ -64,8 +64,8 @@ class TestFeedPage:
         common_header, feed_page = CommonHeader(driver), FeedPage(driver)    # setup
         common_header.click_on_order_feed()
         before = feed_page.return_counter_value(counter)
-        requests.post('https://stellarburgers.nomoreparties.site/api/orders',
-                      headers={'Authorization': test_user["token"]}, data=order_payload, timeout=10)
+        requests.post(URL.ORDERS, headers={'Authorization': test_user["token"]},
+                      data=order_payload, timeout=10)
         after = feed_page.return_counter_value(counter)
         assert after == (before + 1)
 

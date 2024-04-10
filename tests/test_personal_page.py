@@ -17,11 +17,12 @@ class TestPersonalPage:
     @pytest.mark.parametrize("driver", ['chrome', 'firefox'])
     def test_move_to_personal_account_by_click_on_button(self, request, driver, test_user):
         driver = request.getfixturevalue(driver)                                # setup
-        common_header, login_page = CommonHeader(driver), LoginPage(driver)     # setup
+        common_header, login_page, personal_page = (                            # setup
+            CommonHeader(driver), LoginPage(driver), PersonalPage(driver))      # setup
         common_header.click_on_personal_account_button()
         login_page.login(test_user['email_pass'])
         common_header.click_on_personal_account_button()
-        assert expected_conditions.visibility_of_element_located(PersonalPageLocators.ORDER_HISTORY)
+        assert personal_page.check_personal_page_is_displayed()
 
     @allure.title('Проверка: переход в раздел «История заказов»')
     @pytest.mark.parametrize("driver", ['chrome', 'firefox'])
@@ -33,7 +34,7 @@ class TestPersonalPage:
         login_page.login(test_user['email_pass'])
         common_header.click_on_personal_account_button()
         personal_page.click_on_order_history()
-        history_header = personal_page.return_element(PersonalPageLocators.ORDER_HISTORY)
+        history_header = personal_page.return_history_header()
         assert '_active_' in history_header.get_attribute('class')
 
     @allure.title('Проверка: выход из аккаунта')
@@ -46,4 +47,4 @@ class TestPersonalPage:
         login_page.login(test_user['email_pass'])
         common_header.click_on_personal_account_button()
         personal_page.click_on_logout_button()
-        assert expected_conditions.visibility_of_element_located(LoginPageLocators.LOGIN_BUTTON)
+        assert personal_page.check_personal_page_is_closed()

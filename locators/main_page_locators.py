@@ -29,6 +29,3 @@ class MainPageLocators:
     # всплывающее окно о создании заказа:
     ORDER_CREATION_POPUP_WINDOW = By.XPATH, '// p[text()="идентификатор заказа"]'
 
-    # тест. ингредиент (соус Spicy-X) для тестов всплывающего окна с информацией и теста на счётчик ингредиента
-    TEST_INGREDIENT = By.XPATH, '// a[@href="/ingredient/61c0c5a71d1f82001bdaaa72"]'
-
