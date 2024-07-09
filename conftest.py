@@ -43,11 +43,10 @@ def create_order_and_return_number(test_user, order_payload):
 @pytest.fixture(scope="function")
 def chrome():
     my_options = webdriver.ChromeOptions()
-    service = webdriver.ChromeService(executable_path="./chromedriver")
     my_options.add_argument("--window-size=1920,1080")
     my_options.add_argument("--disable-web-security")
     my_options.add_argument("--disable-notifications")
-    driver = webdriver.Chrome(options=my_options, service=service)
+    driver = webdriver.Chrome(options=my_options)
     driver.get(URL.MAIN_PAGE)
     yield driver
     driver.quit()
@@ -56,11 +55,10 @@ def chrome():
 @pytest.fixture(scope="function")
 def firefox():
     my_options = webdriver.FirefoxOptions()
-    service = webdriver.FirefoxService(executable_path="./firefoxdriver")
     my_options.add_argument("--width=1920")
     my_options.add_argument("--height=1080")
     my_options.set_preference('dom.webnotifications.enabled', False)
-    driver = webdriver.Firefox(options=my_options, service=service)
+    driver = webdriver.Firefox(options=my_options)
     driver.get(URL.MAIN_PAGE)
     yield driver
     driver.quit()
